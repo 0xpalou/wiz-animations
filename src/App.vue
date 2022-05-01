@@ -11,7 +11,6 @@
         :style="{'border': 'none', 'outline': 'none', 'padding': '0 3px'}"
         placeholder="#"
       />
-      <button type="button" @click="getWizard">get</button>
     </div>
     <div class="" v-if="wizard">
       <img :src="wizardSVG" id="svg"> <br>
@@ -40,27 +39,38 @@ export default {
     return {
       web3: null,
       contract: null,
-      wizardId: 115,
+      wizardId: 0,
       wizard: null,
       wizardSVG: "",
       image: "",
       output: "",
       frames: [],
       frame: 0,
+      interval: null,
     }
   },
   created: function() {
     this.web3 = new Web3("https://mainnet.infura.io/v3/8b8bb973b275454e8413fa733a2fa5b5")
     this.contract = new this.web3.eth.Contract(abi, "0xC23b12EBA3af92dc3Ec94744c0c260caD0EeD0e5")
   },
+  mounted: function() {
+    this.getWizard()
+  },
+  watch: {
+    wizardId: function() {
+      this.getWizard()
+    },
+  },
   methods: {
     getWizard: async function() {
-      const response = await this.contract.methods.tokenURI(this.wizardId).call()
-      const result = JSON.parse(atob(response.substring(29)));
-      this.wizard = result;
-      this.wizardSVG = result.image
-      this.image = atob(result.image.substring(26))
-      this.output = this.image
+      if(this.wizardId >= 0) {
+        const response = await this.contract.methods.tokenURI(this.wizardId).call()
+        const result = JSON.parse(atob(response.substring(29)));
+        this.wizard = result;
+        this.wizardSVG = result.image
+        this.image = atob(result.image.substring(26))
+        this.output = this.image
+      }
     },
     drool: async function() {
       /* Remove Current Drool */
@@ -75,7 +85,8 @@ export default {
       })
       this.output = editor.innerHTML;
       this.frames = droolAnimation(editor, droolPixel)
-      setInterval(() => {
+      if(this.interval != null) clearInterval(this.interval)
+      this.interval = setInterval(() => {
         this.frame = (this.frame + 1) % this.frames.length
       }, 120)
     }
