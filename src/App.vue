@@ -1,9 +1,7 @@
 <template>
   <div class="" :style="{'padding': '34px 50px'}">
-    <h2>Hi 👋</h2>
-
     <!-- Get Wizard -->
-    <div >
+    <div>
       <strong>Wizard:</strong>
       <input
         type="number"
@@ -14,16 +12,9 @@
     </div>
     <div class="" v-if="wizard">
       <img :src="wizardSVG" id="svg"> <br>
-      <button type="button" @click="drool">!drool</button>
     </div>
-    <div class="">
-      <h2>Drool: </h2>
-      <div class="" :style="{'display': 'flex'}">
-        <div
-          class=""
-          v-html="frames[frame]"
-        > </div>
-      </div>
+    <div :style="{'display': 'flex', 'gap': '12px', 'margin': '12px 0'}" >
+      <Render v-if="droolFrames.length > 0" :frames="droolFrames" />
     </div>
   </div>
 </template>
@@ -32,9 +23,13 @@
 import Web3 from "web3"
 import abi from "@/assets/abi.json"
 import droolAnimation from "@/scripts/drool.js"
+import Render from "@/pages/Render.vue"
 
 export default {
   name: 'App',
+  components: {
+    Render,
+  },
   data() {
     return {
       web3: null,
@@ -43,10 +38,8 @@ export default {
       wizard: null,
       wizardSVG: "",
       image: "",
-      output: "",
-      frames: [],
-      frame: 0,
-      interval: null,
+      drool: false,
+      droolFrames: [],
     }
   },
   created: function() {
@@ -63,32 +56,27 @@ export default {
   },
   methods: {
     getWizard: async function() {
-      if(this.wizardId >= 0) {
+      console.log(this.wizardId)
+      if(typeof(this.wizardId) == 'number' && this.wizardId >= 0) {
         const response = await this.contract.methods.tokenURI(this.wizardId).call()
         const result = JSON.parse(atob(response.substring(29)));
         this.wizard = result;
         this.wizardSVG = result.image
         this.image = atob(result.image.substring(26))
-        this.output = this.image
+        this.animate()
       }
     },
-    drool: async function() {
+    animate: async function() {
       /* Remove Current Drool */
       const editor = document.createElement('div')
-      let droolPixel;
       editor.innerHTML = this.image
       editor.childNodes[0].childNodes.forEach((node, i, arr) => {
         if(node.attributes.fill.nodeValue == "#0092f8") {
-          droolPixel = node.cloneNode(true)
+          this.drool = true
           node.attributes.fill.nodeValue = arr[i - 1].attributes.fill.nodeValue
         }
       })
-      this.output = editor.innerHTML;
-      this.frames = droolAnimation(editor, droolPixel)
-      if(this.interval != null) clearInterval(this.interval)
-      this.interval = setInterval(() => {
-        this.frame = (this.frame + 1) % this.frames.length
-      }, 120)
+      if(this.drool) this.droolFrames = droolAnimation(editor)
     }
   }
 }
