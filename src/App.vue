@@ -23,16 +23,6 @@
     <div :style="{'display': 'flex', 'gap': '12px', 'margin': '12px 0'}" >
       <Render v-if="animation.length > 0" :frames="animation" :length="1200 / 6 * speed" />
     </div>
-    <div :style="{'display': 'flex', 'gap': '12px', 'margin': '12px 0'}" >
-      <div
-        class=""
-        :key="frame"
-        v-for="frame in animation"
-        v-html="frame.innerHTML"
-      >
-
-      </div>
-    </div>
   </div>
 </template>
 
@@ -51,7 +41,7 @@ export default {
     return {
       web3: null,
       contract: null,
-      wizardId: 114,
+      wizardId: 1,
       speed: 6,
       wizard: null,
       wizardSVG: "",
@@ -86,19 +76,47 @@ export default {
 
       const editor = document.createElement('div')
       let drool = false;
+      let rainbow = false;
       let shades = false;
+      let cig = false;
+      let greenSparkle = false;
+      let goldSparkle = false;
       editor.innerHTML = this.image
       editor.childNodes[0].childNodes.forEach((node, i, arr) => {
-        console.log(node)
         if(node.attributes.fill.nodeValue == "#0092f8") {
           drool = true
           node.attributes.fill.nodeValue = arr[i - 1].attributes.fill.nodeValue
         }
+        if(
+          (node.attributes.fill.nodeValue == "#f75490" && node.attributes.x.nodeValue == 90)
+        ) {
+          rainbow = true
+        }
         if(node.attributes.fill.nodeValue == "#000106" && node.attributes.width.nodeValue == "90") {
           shades = true;
         }
+        if(node.attributes.fill.nodeValue == "#5fff76" && (node.attributes.x.nodeValue > 120 || node.attributes.y.nodeValue > 120)) {
+          greenSparkle = true;
+          node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
+        }
+        if(node.attributes.fill.nodeValue == "#ffc42e" && (node.attributes.x.nodeValue > 120 || node.attributes.y.nodeValue > 120)) {
+          goldSparkle = true;
+          node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
+        }
+        if(node.attributes.fill.nodeValue == "#eaeaea") {
+          cig = true;
+          node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
+        }
+
       })
-      this.animation = await animate(editor, { drool: drool, shades: shades })
+      this.animation = await animate(editor, {
+        drool: drool,
+        rainbow: rainbow,
+        shades: shades,
+        cig: cig,
+        greenSparkle: greenSparkle,
+        goldSparkle: goldSparkle
+      })
     }
   }
 }
