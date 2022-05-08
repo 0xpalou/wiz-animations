@@ -1,6 +1,6 @@
 <template lang="html">
   <a :href="url" v-if="url" ref="url" download="drooler.webm">
-    <video :src="url" alt="" loop autoplay width="190" height="190" />
+    <video :src="url" alt="" controls loop autoplay width="190" height="190" />
   </a>
 </template>
 
@@ -12,6 +12,10 @@ export default {
     frames: {
       type: Array,
       required: true
+    },
+    length: {
+      type: Number,
+      required: true,
     }
   },
   data() {
@@ -24,7 +28,7 @@ export default {
 
     const images = await Promise.all(this.frames.map((frame) => {
       return new Promise((resolve) => {
-        const blob = new Blob([frame], {type:'image/svg+xml;charset=utf-8'});
+        const blob = new Blob([frame.innerHTML], {type:'image/svg+xml;charset=utf-8'});
         const url = URL.createObjectURL(blob);
         const image = new Image();
         image.onload = () => {
@@ -43,6 +47,7 @@ export default {
       const chunks = []; // here we will store our recorded media chunks (Blobs)
       // every time the recorder has new data, we will store it in our array
       rec.ondataavailable = e => {
+
         chunks.push(e.data);
       }
       // only when the recorder stops, we construct a complete Blob from all the chunks
@@ -59,10 +64,10 @@ export default {
         rec.stop();
         clearInterval(interval)
       }
-      context.drawImage(images[i % images.length], 0, 0, 1080, 1080)
+      context.drawImage(images[i], 0, 0, 1080, 1080)
       if(i == 0) startRecording()
       i = i + 1
-    }, 300)
+    }, this.length / 12)
   },
   methods: {
     exportVid: function(blob) {

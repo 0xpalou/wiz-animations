@@ -10,11 +10,28 @@
         placeholder="#"
       />
     </div>
-    <div class="" v-if="wizard">
+    <div class="">
+      speed:
+      <input type="range" v-model="speed" min="4" max="12">
+    </div>
+    <button class="" @click="runAnimation">
+      animate!
+    </button>
+    <div class="" v-if="wizardSVG">
       <img :src="wizardSVG" id="svg"> <br>
     </div>
     <div :style="{'display': 'flex', 'gap': '12px', 'margin': '12px 0'}" >
-      <Render v-if="droolFrames.length > 0" :frames="droolFrames" />
+      <Render v-if="animation.length > 0" :frames="animation" :length="1200 / 6 * speed" />
+    </div>
+    <div :style="{'display': 'flex', 'gap': '12px', 'margin': '12px 0'}" >
+      <div
+        class=""
+        :key="frame"
+        v-for="frame in animation"
+        v-html="frame.innerHTML"
+      >
+
+      </div>
     </div>
   </div>
 </template>
@@ -22,8 +39,8 @@
 <script>
 import Web3 from "web3"
 import abi from "@/assets/abi.json"
-import droolAnimation from "@/scripts/drool.js"
 import Render from "@/pages/Render.vue"
+import animate from "./scripts/animate.js"
 
 export default {
   name: 'App',
@@ -34,12 +51,12 @@ export default {
     return {
       web3: null,
       contract: null,
-      wizardId: 0,
+      wizardId: 114,
+      speed: 6,
       wizard: null,
       wizardSVG: "",
       image: "",
-      drool: false,
-      droolFrames: [],
+      animation: [],
     }
   },
   created: function() {
@@ -56,27 +73,32 @@ export default {
   },
   methods: {
     getWizard: async function() {
-      console.log(this.wizardId)
       if(typeof(this.wizardId) == 'number' && this.wizardId >= 0) {
         const response = await this.contract.methods.tokenURI(this.wizardId).call()
         const result = JSON.parse(atob(response.substring(29)));
         this.wizard = result;
         this.wizardSVG = result.image
         this.image = atob(result.image.substring(26))
-        this.animate()
       }
     },
-    animate: async function() {
-      /* Remove Current Drool */
+    runAnimation: async function() {
+      this.animation = []
+
       const editor = document.createElement('div')
+      let drool = false;
+      let shades = false;
       editor.innerHTML = this.image
       editor.childNodes[0].childNodes.forEach((node, i, arr) => {
+        console.log(node)
         if(node.attributes.fill.nodeValue == "#0092f8") {
-          this.drool = true
+          drool = true
           node.attributes.fill.nodeValue = arr[i - 1].attributes.fill.nodeValue
         }
+        if(node.attributes.fill.nodeValue == "#000106" && node.attributes.width.nodeValue == "90") {
+          shades = true;
+        }
       })
-      if(this.drool) this.droolFrames = droolAnimation(editor)
+      this.animation = await animate(editor, { drool: drool, shades: shades })
     }
   }
 }
