@@ -7,13 +7,25 @@
         type="number"
         v-model="wizardId"
         :style="{'border': 'none', 'outline': 'none', 'padding': '0 3px'}"
-        placeholder="#"
+        placeholder="Search by Wizard Id"
       />
     </div>
     <div class="">
       speed:
       <input type="range" v-model="speed" min="4" max="12">
     </div>
+    <div
+      class=""
+      :key="param"
+      v-for="param in Object.keys(params).filter((param) => canParams[param])"
+    >
+      <input
+        type="checkbox"
+        v-model="params[param]"
+      >
+      {{ param }}
+    </div>
+
     <button class="" @click="runAnimation">
       animate!
     </button>
@@ -32,6 +44,22 @@ import abi from "@/assets/abi.json"
 import Render from "@/pages/Render.vue"
 import animate from "./scripts/animate.js"
 
+const baseParams = {
+  drool: false,
+  bloodyDrool: false,
+  rainbow: false,
+  cig: false,
+  greenSparkle: false,
+  goldSparkle: false,
+  shades: false,
+  eyeTwiter: false,
+  eyePatch: false,
+  blueStaff: false,
+  redStaff: false,
+  orb: false,
+  purpleOrb: false,
+}
+
 export default {
   name: 'App',
   components: {
@@ -41,11 +69,13 @@ export default {
     return {
       web3: null,
       contract: null,
-      wizardId: 1,
+      wizardId: "",
       speed: 6,
       wizard: null,
       wizardSVG: "",
       image: "",
+      params: JSON.parse(JSON.stringify(baseParams)),
+      canParams: JSON.parse(JSON.stringify(baseParams)),
       animation: [],
     }
   },
@@ -69,54 +99,74 @@ export default {
         this.wizard = result;
         this.wizardSVG = result.image
         this.image = atob(result.image.substring(26))
+        this.params = JSON.parse(JSON.stringify(baseParams))
+        this.canParams = JSON.parse(JSON.stringify(baseParams))
+        this.checkProperties()
       }
+    },
+    checkProperties: function() {
+      const editor = document.createElement('div')
+      editor.innerHTML = this.image
+      editor.childNodes[0].childNodes.forEach((node) => {
+        if(node.attributes.fill.nodeValue == "#f75490" && node.attributes.x.nodeValue == 90) {
+          this.canParams.rainbow = true
+          this.params.rainbow = true
+        }
+        if(node.attributes.fill.nodeValue == "#eaeaea" && (node.attributes.x.nodeValue == 150 || node.attributes.x.nodeValue == 160)) {
+          this.canParams.cig = true;
+          this.params.cig = true;
+        }
+        if(node.attributes.fill.nodeValue == "#000106" && node.attributes.width.nodeValue == "90") {
+          this.canParams.shades = true;
+          this.params.shades = true;
+        }
+        if(node.attributes.fill.nodeValue == "#5fff76" && (node.attributes.x.nodeValue > 120 || node.attributes.y.nodeValue > 120)) {
+          this.canParams.greenSparkle = true;
+          this.params.greenSparkle = true;
+        }
+        if(node.attributes.fill.nodeValue == "#ffc42e" && (node.attributes.x.nodeValue > 120 || node.attributes.y.nodeValue > 120)) {
+          this.canParams.goldSparkle = true;
+          this.params.goldSparkle = true;
+        }
+        if(node.attributes.fill.nodeValue == "#0092f8") {
+          this.canParams.drool = true
+          this.params.drool = true
+        }
+        if(node.attributes.fill.nodeValue == "#b70005") {
+          this.canParams.bloodyDrool = true
+          this.params.bloodyDrool = true
+        }
+        if(node.attributes.fill.nodeValue == "#43ffff") {
+          this.canParams.blueStaff = true
+          this.params.blueStaff = true
+        }
+        if(node.attributes.fill.nodeValue == "#ff3c00") {
+          this.canParams.redStaff = true
+          this.params.redStaff = true
+        }
+      })
     },
     runAnimation: async function() {
       this.animation = []
 
       const editor = document.createElement('div')
-      let drool = false;
-      let rainbow = false;
-      let shades = false;
-      let cig = false;
-      let greenSparkle = false;
-      let goldSparkle = false;
       editor.innerHTML = this.image
+      // cleaning
       editor.childNodes[0].childNodes.forEach((node, i, arr) => {
-        if(node.attributes.fill.nodeValue == "#0092f8") {
-          drool = true
+        if(this.params.drool && node.attributes.fill.nodeValue == "#0092f8") {
           node.attributes.fill.nodeValue = arr[i - 1].attributes.fill.nodeValue
         }
-        if(
-          (node.attributes.fill.nodeValue == "#f75490" && node.attributes.x.nodeValue == 90)
-        ) {
-          rainbow = true
-        }
-        if(node.attributes.fill.nodeValue == "#000106" && node.attributes.width.nodeValue == "90") {
-          shades = true;
-        }
-        if(node.attributes.fill.nodeValue == "#5fff76" && (node.attributes.x.nodeValue > 120 || node.attributes.y.nodeValue > 120)) {
-          greenSparkle = true;
+        if(this.params.greenSparkle && node.attributes.fill.nodeValue == "#5fff76" && (node.attributes.x.nodeValue > 120 || node.attributes.y.nodeValue > 120)) {
           node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
         }
-        if(node.attributes.fill.nodeValue == "#ffc42e" && (node.attributes.x.nodeValue > 120 || node.attributes.y.nodeValue > 120)) {
-          goldSparkle = true;
+        if(this.params.goldSparkle && node.attributes.fill.nodeValue == "#ffc42e" && (node.attributes.x.nodeValue > 120 || node.attributes.y.nodeValue > 120)) {
           node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
         }
-        if(node.attributes.fill.nodeValue == "#eaeaea") {
-          cig = true;
+        if(this.params.cig && node.attributes.fill.nodeValue == "#eaeaea" && (node.attributes.x.nodeValue == 150 || node.attributes.x.nodeValue == 160)) {
           node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
         }
-
       })
-      this.animation = await animate(editor, {
-        drool: drool,
-        rainbow: rainbow,
-        shades: shades,
-        cig: cig,
-        greenSparkle: greenSparkle,
-        goldSparkle: goldSparkle
-      })
+      this.animation = await animate(editor, this.params)
     }
   }
 }
