@@ -35,6 +35,12 @@
     <div :style="{'display': 'flex', 'gap': '12px', 'margin': '12px 0'}" >
       <Render v-if="animation.length > 0" :frames="animation" :length="1200 / 6 * speed" />
     </div>
+    <!--
+    <div class="" v-if="animation.length > 0">
+      <div v-html="frame.innerHTML" :key="i" v-for="(frame, i) in animation">
+      </div>
+    </div>
+  -->
   </div>
 </template>
 
@@ -144,6 +150,14 @@ export default {
           this.canParams.redStaff = true
           this.params.redStaff = true
         }
+        if(node.attributes.fill.nodeValue == "#27ffcb") {
+          this.canParams.orb = true
+          this.params.orb = true
+        }
+        if((node.attributes.fill.nodeValue == "#ff5fef" || node.attributes.fill.nodeValue == "#c218ed") && node.attributes.x.nodeValue > 140) {
+          this.canParams.purpleOrb = true
+          this.params.purpleOrb = true
+        }
       })
     },
     runAnimation: async function() {
@@ -163,6 +177,12 @@ export default {
           node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
         }
         if(this.params.cig && node.attributes.fill.nodeValue == "#eaeaea" && (node.attributes.x.nodeValue == 150 || node.attributes.x.nodeValue == 160)) {
+          node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
+        }
+        if(node.attributes.fill.nodeValue == "#27ffcb" || (node.attributes.fill.nodeValue == "#ffffff" && node.attributes.x.nodeValue == 160)) {
+          node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
+        }
+        if((node.attributes.fill.nodeValue == "#ff5fef" || node.attributes.fill.nodeValue == "#c218ed") && node.attributes.x.nodeValue > 140) {
           node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)"
         }
       })

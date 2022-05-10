@@ -7,6 +7,8 @@ import greenSparkle from "./greenSparkle.js"
 import goldSparkle from "./goldSparkle.js"
 import blueStaff from "./blueStaff.js"
 import redStaff from "./redStaff.js"
+import orb from "./orb.js"
+import purpleOrb from "./purpleOrb.js"
 
 export default function(wizard, params) {
   console.log(params)
@@ -23,6 +25,8 @@ export default function(wizard, params) {
       if(params.goldSparkle) frame = goldSparkle(frame, i)
       if(params.blueStaff) frame = blueStaff(frame, i)
       if(params.redStaff) frame = redStaff(frame, i)
+      if(params.orb) frame = orb(frame, i)
+      if(params.purpleOrb) frame = purpleOrb(frame, i)
       frames.push(frame)
     }
     resolve(frames)
