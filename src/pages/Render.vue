@@ -1,5 +1,5 @@
 <template lang="html">
-  <a :href="url" v-if="url" ref="url" download="drooler.webm">
+  <a :href="url" v-if="url" ref="url" download="wiz.webm">
     <video :src="url" alt="" controls loop autoplay width="190" height="190" />
   </a>
 </template>
