@@ -52,7 +52,7 @@ export default {
       }
       // only when the recorder stops, we construct a complete Blob from all the chunks
       rec.onstop = () => {
-        this.exportVid(new Blob(chunks, {type: 'video/webm'}));
+        this.exportVid(new Blob(chunks, {type: 'video/mp4'}));
       }
 
       rec.start();
