@@ -27,25 +27,18 @@
     <div class="" v-if="wizardSVG">
       <img :src="wizardSVG" id="svg" /> <br />
     </div>
-    <div :style="{ display: 'flex', gap: '12px', margin: '12px 0' }">
-      <Render
-        v-if="animation.length > 0"
-        :frames="animation"
-        :length="(1200 / 6) * speed"
-      />
+    <div class="" v-if="animation">
+      <img :src="animation" /> <br />
+      <a :href="animation" download="wizard">
+        <button type="button">download</button>
+      </a>
     </div>
-    <!--
-    <div class="" v-if="animation.length > 0">
-      <div v-html="frame.innerHTML" :key="i" v-for="(frame, i) in animation">
-      </div>
-    </div>
-  --></div>
+  </div>
 </template>
 
 <script>
 import Web3 from "web3";
 import abi from "@/assets/abi.json";
-import Render from "@/pages/Render.vue";
 import animate from "./scripts/animate.js";
 
 const baseParams = {
@@ -66,9 +59,6 @@ const baseParams = {
 
 export default {
   name: "App",
-  components: {
-    Render,
-  },
   data() {
     return {
       web3: null,

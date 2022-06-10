@@ -69,7 +69,9 @@ export default function (wizard, params, speed) {
             gif.addFrame(element, { delay: speed });
           });
           gif.on("finished", function (blob) {
-            window.open(URL.createObjectURL(blob));
+            const gifURL = URL.createObjectURL(blob);
+            resolve(gifURL);
+            window.open(gifURL);
           });
           gif.render();
         } else {
@@ -79,6 +81,5 @@ export default function (wizard, params, speed) {
     };
     tryFinish();
     //resolve(frames)
-    resolve([]);
   });
 }
