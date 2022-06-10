@@ -236,11 +236,7 @@ export default {
           node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)";
         }
       });
-      this.animation = await animate(
-        editor,
-        this.params,
-        12 / this.speed / 100
-      );
+      this.animation = await animate(editor, this.params, 1000 / this.speed);
     },
   },
 };

@@ -13,9 +13,10 @@ import orb from "./orb.js";
 import purpleOrb from "./purpleOrb.js";
 
 export default function (wizard, params, speed) {
+  console.log(speed);
   return new Promise((resolve) => {
     const frames = [];
-    for (let i = 0; i < 12; i = i + 1) {
+    for (let i = 0; i < 24; i = i + 1) {
       let frame = wizard.cloneNode(true);
       if (params.drool) frame = drool(frame, i);
       if (params.bloodyDrool) frame = bloodyDrool(frame, i);
@@ -31,25 +32,52 @@ export default function (wizard, params, speed) {
       frames.push(frame);
     }
     const gif = new GIF({
-      workers: 2,
+      workers: 1,
       quality: 10,
       width: 190,
       height: 190,
+      debug: true,
     });
-    frames.forEach((frame) => {
+    /*
+    const blob = new Blob([frames[8].innerHTML], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    console.log(url);
+    const element = document.createElement("img");
+    element.src = url;
+    console.log(element);
+    gif.addFrame(element, { delay: speed });
+    */
+    let toLoad = frames.length;
+    const urls = [];
+    frames.forEach((frame, i) => {
       const blob = new Blob([frame.innerHTML], { type: "image/svg+xml" });
       const url = URL.createObjectURL(blob);
-      console.log(url);
-      const element = document.createElement("img");
-      element.src = url;
-      console.log(element);
-      gif.addFrame(element, { delay: speed });
+      var img = new Image();
+      img.onload = () => {
+        toLoad -= 1;
+        urls[i] = url;
+      };
+      img.src = url;
     });
 
-    gif.on("finished", function (blob) {
-      window.open(URL.createObjectURL(blob));
-    });
-    gif.render();
+    const tryFinish = () => {
+      setTimeout(() => {
+        if (toLoad == 0) {
+          urls.forEach((url) => {
+            const element = document.createElement("img");
+            element.src = url;
+            gif.addFrame(element, { delay: speed });
+          });
+          gif.on("finished", function (blob) {
+            window.open(URL.createObjectURL(blob));
+          });
+          gif.render();
+        } else {
+          tryFinish();
+        }
+      });
+    };
+    tryFinish();
     //resolve(frames)
     resolve([]);
   });
