@@ -12,7 +12,7 @@ import redStaff from "./redStaff.js";
 import orb from "./orb.js";
 import purpleOrb from "./purpleOrb.js";
 
-export default function (wizard, params, speed) {
+export default function (wizard, params, speed, resolution) {
   console.log(speed);
   return new Promise((resolve) => {
     const frames = [];
@@ -34,8 +34,8 @@ export default function (wizard, params, speed) {
     const gif = new GIF({
       workers: 1,
       quality: 10,
-      width: 190,
-      height: 190,
+      width: resolution,
+      height: resolution,
       debug: true,
     });
     /*

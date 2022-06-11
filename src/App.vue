@@ -14,6 +14,10 @@
       speed:
       <input type="range" v-model="speed" min="4" max="12" />
     </div>
+    <div class="">
+      resolution:
+      <input type="number" v-model="resolution" />
+    </div>
     <div
       class=""
       :key="param"
@@ -68,6 +72,7 @@ export default {
       wizard: null,
       wizardSVG: "",
       image: "",
+      resolution: 1080,
       params: JSON.parse(JSON.stringify(baseParams)),
       canParams: JSON.parse(JSON.stringify(baseParams)),
       animation: [],
@@ -182,6 +187,9 @@ export default {
 
       const editor = document.createElement("div");
       editor.innerHTML = this.image;
+      //editor.childNodes[0].setAttribute("transform", "scale(2, 2)");
+      editor.childNodes[0].setAttribute("width", this.resolution);
+      editor.childNodes[0].setAttribute("height", this.resolution);
       // cleaning
       editor.childNodes[0].childNodes.forEach((node, i, arr) => {
         if (this.params.drool && node.attributes.fill.nodeValue == "#0092f8") {
@@ -226,7 +234,12 @@ export default {
           node.attributes.fill.nodeValue = "rgba(0, 0, 0, 0)";
         }
       });
-      this.animation = await animate(editor, this.params, 1000 / this.speed);
+      this.animation = await animate(
+        editor,
+        this.params,
+        1000 / this.speed,
+        this.resolution
+      );
     },
   },
 };
