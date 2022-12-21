@@ -80,7 +80,7 @@ export default {
   },
   created: function () {
     this.web3 = new Web3(
-      "https://mainnet.infura.io/v3/8b8bb973b275454e8413fa733a2fa5b5"
+      "https://mainnet.infura.io/v3/64ee072b474144ffa943d85d07070d55"
     );
     this.contract = new this.web3.eth.Contract(
       abi,
